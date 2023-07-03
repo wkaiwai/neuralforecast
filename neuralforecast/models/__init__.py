@@ -1,7 +1,7 @@
 __all__ = ['RNN', 'GRU', 'LSTM', 'TCN', 'DilatedRNN',
            'MLP', 'NHITS', 'NBEATS', 'NBEATSx',
            'TFT', 'VanillaTransformer', 'Informer', 'Autoformer', 'PatchTST', 'FEDformer',
-           'StemGNN', 'HINT']
+           'StemGNN', 'HINT', 'LSTM_GRU_Hybrid']
 
 from .rnn import RNN
 from .gru import GRU
@@ -20,3 +20,4 @@ from .autoformer import Autoformer
 from .fedformer import FEDformer
 from .patchtst import PatchTST
 from .hint import HINT
+from .lstm_gru import LSTM_GRU_Hybrid
