@@ -3,7 +3,7 @@
 # %% auto 0
 __all__ = ['AutoRNN', 'AutoLSTM', 'AutoGRU', 'AutoTCN', 'AutoDilatedRNN', 'AutoMLP', 'AutoNBEATS', 'AutoNBEATSx', 'AutoNHITS',
            'AutoTFT', 'AutoVanillaTransformer', 'AutoInformer', 'AutoAutoformer', 'AutoFEDformer', 'AutoPatchTST',
-           'AutoStemGNN', 'AutoHINT']
+           'AutoStemGNN', 'AutoHINT', 'AutoLSTM_GRU_Hybrid']
 
 # %% ../nbs/models.ipynb 2
 from os import cpu_count
@@ -19,6 +19,7 @@ from .models.gru import GRU
 from .models.tcn import TCN
 from .models.lstm import LSTM
 from .models.dilated_rnn import DilatedRNN
+from .models.lstm_gru import LSTM_GRU_Hybrid
 
 from .models.mlp import MLP
 from .models.nbeats import NBEATS
@@ -1032,3 +1033,60 @@ class AutoHINT(BaseAuto):
         model.test_size = test_size
         model.fit(dataset, val_size=val_size, test_size=test_size)
         return model
+
+class AutoLSTM_GRU_Hybrid(BaseAuto):
+    default_config = {
+        "input_size_multiplier": [-1, 4, 16, 64],
+        "inference_input_size_multiplier": [-1],
+        "h": None,
+        "encoder_hidden_size": tune.choice([50, 100, 200, 300]),
+        "encoder_n_layers": tune.randint(1, 4),
+        "context_size": tune.choice([5, 10, 50]),
+        "decoder_hidden_size": tune.choice([64, 128, 256, 512]),
+        "learning_rate": tune.loguniform(1e-4, 1e-1),
+        "max_steps": tune.choice([500, 1000]),
+        "batch_size": tune.choice([16, 32]),
+        "loss": None,
+        "random_seed": tune.randint(1, 20),
+    }
+
+    def __init__(
+        self,
+        h,
+        loss=MAE(),
+        valid_loss=None,
+        config=None,
+        search_alg=BasicVariantGenerator(random_state=1),
+        num_samples=10,
+        refit_with_val=False,
+        cpus=cpu_count(),
+        gpus=torch.cuda.device_count(),
+        verbose=False,
+    ):
+        # Define search space, input/output sizes
+        if config is None:
+            config = self.default_config.copy()
+            config["input_size"] = tune.choice(
+                [h * x for x in self.default_config["input_size_multiplier"]]
+            )
+            config["inference_input_size"] = tune.choice(
+                [h * x for x in self.default_config["inference_input_size_multiplier"]]
+            )
+            del (
+                config["input_size_multiplier"],
+                config["inference_input_size_multiplier"],
+            )
+
+        super(AutoLSTM, self).__init__(
+            cls_model=LSTM_GRU_Hybrid,
+            h=h,
+            loss=loss,
+            valid_loss=valid_loss,
+            config=config,
+            search_alg=search_alg,
+            num_samples=num_samples,
+            refit_with_val=refit_with_val,
+            cpus=cpus,
+            gpus=gpus,
+            verbose=verbose,
+        )

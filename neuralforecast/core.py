@@ -32,6 +32,7 @@ from neuralforecast.models import (
     FEDformer,
     StemGNN,
     PatchTST,
+    LSTM_GRU_Hybrid
 )
 
 # %% ../nbs/core.ipynb 5
