@@ -1077,7 +1077,7 @@ class AutoLSTM_GRU_Hybrid(BaseAuto):
                 config["inference_input_size_multiplier"],
             )
 
-        super(AutoLSTM, self).__init__(
+        super(AutoLSTM_GRU_Hybrid, self).__init__(
             cls_model=LSTM_GRU_Hybrid,
             h=h,
             loss=loss,
