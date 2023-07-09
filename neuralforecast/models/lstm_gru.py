@@ -110,7 +110,7 @@ class LSTM_GRU_Hybrid(BaseRecurrent):
             **trainer_kwargs
         )
 
-        # LSTM
+        # RNN
         self.encoder_hidden_size = encoder_hidden_size
         self.encoder_bias = encoder_bias
         self.encoder_dropout = encoder_dropout
